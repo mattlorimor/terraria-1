@@ -5,11 +5,11 @@
 DEFAULT_UID=7777
 DEFAULT_GID=7777
 
+# Set the terraria user's UID and GID to the default
+# or the user-supplied values.
 UID=${UID:-${DEFAULT_UID}}
 GID=${GID:-${DEFAULT_GID}}
 
-# Set the terraria user's UID and GID to the default
-# or the user-supplied values.
 echo "setting terraria uid/gid $UID/$GID"
 usermod terraria -u $UID
 groupmod terraria -g $GID
