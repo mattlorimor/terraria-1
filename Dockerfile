@@ -25,33 +25,24 @@ ENV WORLDPATH=/world
 ENV CONFIGPATH=/world
 ENV LOGPATH=/tshock/logs
 
-# add terraria user to run as
-RUN groupadd -r terraria && \
-    useradd -m -r -g terraria terraria && \
-    # install nuget to grab tshock dependencies
-    apt-get update -y && \
-    apt-get install -y nuget && \
-    rm -rf /var/lib/apt/lists/* /tmp/* && \
-    # create directories
-    mkdir /tshock && \
-    mkdir /world && \
-    mkdir /plugins && \
-    mkdir -p /tshock/logs && \
-    chown -R terraria:terraria /tshock /world /plugins
-
 # copy in bootstrap
-COPY --chown=terraria:terraria --from=base bootstrap.sh /tshock/bootstrap.sh
+COPY --from=base bootstrap.sh /tshock/bootstrap.sh
 
 # copy game files
-COPY --chown=terraria:terraria --from=base /tshock/* /tshock
+COPY --from=base /tshock/* /tshock
+
+# add terraria user to run as
+RUN adduser terraria --disabled-password --disabled-login --no-create-home --gecos "" && \
+    # install nuget to grab tshock dependencies
+    apt-get -qq update -y && \
+    apt-get -qq install -y nuget && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Allow for external data
 VOLUME ["/world", "/tshock/logs", "/plugins"]
 
 # Set working directory to server
 WORKDIR /tshock
-
-USER terraria
 
 # run the bootstrap, which will copy the TShockAPI.dll before starting the server
 ENTRYPOINT [ "/bin/sh", "bootstrap.sh" ]
